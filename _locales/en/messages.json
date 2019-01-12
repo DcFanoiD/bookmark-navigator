@@ -1,0 +1,104 @@
+{
+    "chrome_extension_description": {
+        "message": "Fast and simple bookmark navigation"
+    },
+    "chrome_extension_name": {
+        "message": "Bookmark Navigator"
+    },
+    "lang": {
+        "message": "en"
+    },
+    "button_rename": {
+        "message": "Rename"
+    },
+    "button_save": {
+        "message": "Save"
+    },
+    "button_cancel": {
+        "message": "Cancel"
+    },
+    "button_delete": {
+        "message": "Delete"
+    },
+    "button_close": {
+        "message": "Close"
+    },
+    "button_reset_settings": {
+        "message": "Reset to defaults"
+    },
+    "change_folder": {
+        "message": "Manage folder"
+    },
+    "open_folder_in_manager": {
+        "message": "Open folder in bookmark manager"
+    },
+    "open_links_in_new_tabs": {
+        "message": "Open all bookmarks in new tab"
+    },
+    "open_bookmark_in_private": {
+        "message": "Open bookmark in incognito window"
+    },
+    "title_settings": {
+        "message": "Settings"
+    },
+    "title_change_bookmark": {
+        "message": "Manage bookmark"
+    },
+    "title_controls": {
+        "message": "Controls"
+    },
+    "bookmarks_empty": {
+        "message": "Bookmark folder is empty"
+    },
+    "settings_open_links_in_new_tabs": {
+        "message": "Left click opens bookmark in new tab"
+    },
+    "settings_show_folders_path": {
+        "message": "Show folders path lines"
+    },
+    "settings_remember_scroll_position": {
+        "message": "Remember scroll position"
+    },
+    "settings_scroll_position_description": {
+        "message": "Last saved position"
+    },
+    "settings_edit_enabled": {
+        "message": "Enable editing"
+    },
+    "settings_edit_enabled_description": {
+        "message": "Right click on a bookmark or folder"
+    },
+    "settings_sort_enabled": {
+        "message": "Enable sorting"
+    },
+    "settings_show_empty_folders": {
+        "message": "Show empty folders"
+    },
+    "settings_focus_on_search": {
+        "message": "Focus on search input by default"
+    },
+    "help_controls_lmb": {
+        "message": "Open bookmark in current tab"
+    },
+    "help_controls_lmb_ctrl": {
+        "message": "Open bookmark in new background tab"
+    },
+    "help_controls_rmb": {
+        "message": "Edit bookmark or folder"
+    },
+    "help_controls_tab_space": {
+        "message": "Switch between bookmarks and click on it"
+    },
+    "help_controls_refresh": {
+        "message": "Refresh bookmark tree, sync settings"
+    },
+    "link_open_bookmark_manager": {
+        "message": "Open bookmark manager"
+    },
+    "link_github_text": {
+        "message": "View on GitHub"
+    },
+    "version": {
+        "message": "Extension version"
+    }
+}

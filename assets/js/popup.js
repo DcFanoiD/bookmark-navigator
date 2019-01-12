@@ -1,0 +1,652 @@
+'use strict';
+const app = {
+
+    //Manifest
+    manifest: chrome.runtime.getManifest(),
+
+    //Bookmark raw tree
+    raw: [],
+
+    //Bookmark counter
+    counter: 0,
+
+    //DOM
+    dom: {
+        wrapper:                document.querySelector('.wrapper'),
+        body:                   document.getElementById('bookmarks'),
+        settings:               document.querySelector('.settings'),
+        help:                   document.querySelector('.help'),
+        linkEditor:             document.querySelector('.link-editor'),
+        linkEditorForm:         document.getElementById('linkEditorForm'),
+        linkEditorFieldId:      document.getElementById('linkEditorBookmarkId'),
+        linkEditorFieldTitle:   document.getElementById('linkEditorBookmarkTitle'),
+        linkEditorFieldUrl:     document.getElementById('linkEditorBookmarkUrl'),
+        linkEditorCloseButton:  document.getElementById('linkEditorCloseButton'),
+        linkEditorRemoveButton: document.getElementById('linkEditorRemoveButton'),
+        linkEditorOpenIncognito:document.getElementById('linkEditorOpenPrivate'),
+        folderEditor:           document.querySelector('.folder-editor'),
+        folderEditorForm:       document.getElementById('folderEditorForm'),
+        folderEditorFieldId:    document.getElementById('folderEditorFolderId'),
+        folderEditorFieldTitle: document.getElementById('folderEditorFolderTitle'),
+        folderEditorCloseButton:document.getElementById('folderEditorCloseButton'),
+        folderEditorManagerLink:document.getElementById('folderEditorManagerLink'),
+        folderEditorOpenAll:    document.getElementById('folderEditorOpenAll'),
+        settingsForm:           document.getElementById('settingsForm'),
+        settingsReset:          document.getElementById('settingsReset'),
+        settingsClose:          document.getElementById('settingsClose'),
+        controlButtons:         document.querySelectorAll('.control__item'),
+        controlButtonRefresh:   document.querySelector('[data-control="refresh"]'),
+        controlButtonSettings:  document.querySelector('[data-control="settings"]'),
+        controlButtonHelp:      document.querySelector('[data-control="help"]'),
+        searchInput:            document.getElementById('search'),
+        versionContainer:       document.getElementById('version'),
+        content:                '<ul>',
+        folders: function() {
+            return document.querySelectorAll('.bookmarks__folder > span')
+        },
+        links: function() {
+            return document.querySelectorAll('[data-url]')
+        }
+    },
+
+    //Settings
+    settings: {
+        defaults: {
+            'isInit':true,
+            'openLinksInNewTabs':false,
+            'showFoldersPath': true,
+            'rememberScrollPosition':true,
+            'editEnabled':true,
+            'sortEnabled':false,
+            'focusOnSearch': false,
+            'openedFolders':[],
+            'scrollPosition': 0,
+            'showEmptyFolders': false,
+        },
+        current: {},
+        get: function(key, callback) {
+            chrome.storage.local.get(key, function(result) {
+                if('isInit' in result) {
+                    app.settings.current = result;
+                } else {
+                    app.settings.current = app.settings.defaults;
+                    app.settings.reset(function() {
+                        app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
+                    });
+                }
+                callback(result);
+            });
+        },
+        save: function(obj, callback) {
+            chrome.storage.local.set(obj, function() {
+                if(typeof callback == 'function') callback();
+            });
+        }, 
+        update: function(callback) {
+            app.settings.get(null, function(result){
+                for (var prop in result) {
+                    var el = document.getElementById(prop);
+                    if(el && el.type == 'checkbox') {
+                        el.checked = result[prop];
+                    }
+                }
+                if(typeof callback == 'function') callback();
+            });
+        },
+        reset: function(callback) {
+            chrome.storage.local.clear(function() {
+                chrome.storage.local.set(app.settings.defaults, function() {
+                    if(typeof callback == 'function') callback();
+                });
+            });
+        },
+        listener: function() {
+
+            //Autosave settings when settings form was changed
+            app.dom.settingsForm.addEventListener('change', function(field){
+                let settings = {};
+                if(field.target.type == 'checkbox') {
+                    settings[field.target.id] = field.target.checked;
+                }
+                app.settings.save(settings, function() {
+                    app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
+                });
+                
+            });
+
+            //Reset settings button
+            app.dom.settingsReset.addEventListener('click', function(e){
+                e.preventDefault();
+                app.settings.reset(function(){
+                    app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
+                });
+            });
+
+            //Close settings popup
+            app.dom.settingsClose.addEventListener('click', function(e){
+                e.preventDefault();
+                app.controls('settings', 'end', app.dom.controlButtonSettings);
+            });
+
+            //Remember scroll position
+            var isScrolling;
+            window.addEventListener('scroll', function (event) {
+                if(!app.settings.current.rememberScrollPosition) {
+                    return;
+                }
+                window.clearTimeout(isScrolling);
+                isScrolling = setTimeout(function() {
+                    document.getElementById('currentScrollPos').innerHTML = this.scrollY+"px";
+                    app.settings.save({'scrollPosition': this.scrollY}, function(){});
+                }, 90);
+            }, false);
+
+            //Search listener. Close all opened popup's oninput
+            app.dom.searchInput.addEventListener('input', function(){
+                app.search(this.value);
+                app.controls('settings', 'end', app.dom.controlButtonSettings);
+                app.controls('help', 'end', app.dom.controlButtonHelp);
+                app.controls('folderedit', 'end');
+                app.controls('linkedit', 'end');
+            });
+
+            //Bookmark manager: submit form listener
+            app.dom.linkEditorForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                app.linkEditor.update(app.linkEditor.serialize());
+            });
+
+            //Bookmark manager: remove bookmark
+            app.dom.linkEditorRemoveButton.addEventListener('click', function(){
+                app.linkEditor.remove(app.linkEditor.serialize());
+            });
+
+            //Bookmark manager: close editor without changes
+            app.dom.linkEditorCloseButton.addEventListener('click', function(){
+                app.controls('linkedit', 'end');
+            });
+
+            //Folder manager: submit form listener
+            app.dom.folderEditorForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                app.folderEditor.update(app.folderEditor.serialize());
+            });
+
+            //Folder manager: close editor without changes
+            app.dom.folderEditorCloseButton.addEventListener('click', function(){
+                app.controls('folderedit', 'end');
+            });
+
+        }
+    },
+
+    //Build bookmark tree
+    rawTree: function(callback) {
+        chrome.bookmarks.getTree(function(branch) {
+            app.raw = branch[0];
+            callback();
+        });
+    },
+
+    //Check empty folders
+    showEmptyFolders: function(length) {
+        return (this.settings.current.showEmptyFolders) ? true : (length > 0);
+    },
+
+    //Build HTML from tree
+    buildHtml: function(tree) {
+        tree.children.forEach(element => {
+            if(element.children && app.showEmptyFolders(element.children.length)) {
+                app.dom.content += `
+                    <li class="bookmarks__folder ${app.getFolderClassName(element.id)}" data-id="${element.id}">
+                        <span>${element.title}</span>
+                        <ul>`;
+                app.buildHtml(element);
+                app.dom.content += `</li>`;
+            } else if(element.url){
+                app.dom.content += `
+                    <li style="background-image:url(chrome://favicon/${element.url})" data-url="${element.url}" data-id="${element.id}">
+                        <span>${element.title}</span>
+                    </li>`;
+                app.counter++;
+            }
+        });
+        this.dom.content += '</ul>';
+    },
+
+    //Append HTML to DOM
+    insertHtml: function(callback) {
+        this.dom.body.innerHTML = (this.counter === 0) 
+            ? `<div class="bookmarks__empty" data-message="bookmarks_empty"></div>` 
+            : this.dom.content;
+        callback();
+    },
+
+    //Focus on search input
+    focusOnSearch: function() {
+        if(this.settings.current.focusOnSearch){
+            this.dom.searchInput.focus();
+        }
+    },
+
+    //Apply settings
+    appendSettings: function() {
+        //Scrolling to saved position if option enabled
+        if(this.settings.current.rememberScrollPosition && this.settings.current.scrollPosition > 0) {
+            window.scrollTo(0, this.settings.current.scrollPosition);
+        }
+        //Focus on search input if option enabled
+        this.focusOnSearch();
+    },
+
+    //Translate
+    translate: function() {
+        let containers = document.querySelectorAll('[data-message]');
+        containers.forEach(container => {
+            let id = container.dataset.message, message = chrome.i18n.getMessage(id);
+            container.innerText = message;
+        })
+    },
+
+    //Toggle folder path lines view if option enabled
+    toggleFolderViewPath: function() {
+        (this.settings.current.showFoldersPath) ? this.dom.body.classList.add('show-path') : this.dom.body.classList.remove('show-path');
+    },
+
+    //Search logic
+    search: function(keywords) {
+        keywords = keywords.trim();
+        if(keywords.length > 0) {
+            this.dom.body.classList.add('bookmarks--searching');
+            this.expandFolders(true) 
+        } else {
+            this.dom.body.classList.remove('bookmarks--searching');
+            this.expandFolders(false);
+        }
+        let items = document.querySelectorAll('.bookmarks li[data-url]');
+        items.forEach(item => {
+            var text = item.innerHTML.toLowerCase(), 
+                url  = item.dataset.url;
+            item.style.display = (text.includes(keywords.toLowerCase()) || url.includes(keywords.toLowerCase()))
+                ? 'list-item' 
+                : 'none';
+        });
+    },
+
+    //Expand or collapse folder
+    expandFolders: function(state) {
+        this.dom.folders().forEach(folder => {
+            folder = folder.parentNode;
+            if(!folder.classList.contains('bookmarks__folder--opened') && state === true) {
+                folder.classList.add('bookmarks__folder--temp-opened');
+            } else if(folder.classList.contains('bookmarks__folder--temp-opened') && state === false) {
+                folder.classList.remove('bookmarks__folder--temp-opened');
+            }
+        });
+    },
+
+    //Register control buttons events
+    registerControls:function() {
+        this.dom.controlButtons.forEach(control => {
+            control.addEventListener('click', function(){
+                let name = this.dataset.control;
+                if(this.classList.toggle('control__item--active')){
+                    app.controls(name, 'begin', this);
+                } else {
+                    app.controls(name, 'end', this);
+                }
+            })
+        });
+    },
+
+    //Control events
+    controls: function(name, action, button){
+        switch (name) {
+            case 'settings':
+                if(action == 'begin') {
+                    this.dom.settings.classList.add('active');
+                    this.controls('help', 'end', this.dom.controlButtonHelp);
+                    this.controls('linkedit', 'end');
+                    this.controls('folderedit', 'end');
+                    this.resizeWindow(530);
+                } else if(action == 'end') {
+                    this.dom.settings.classList.remove('active');
+                    button.classList.remove('control__item--active');
+                    this.resizeWindow();
+                    this.focusOnSearch();
+                }
+            break;
+            case 'help': 
+                if(action == 'begin') {
+                    this.dom.help.classList.add('active');
+                    this.controls('settings', 'end', this.dom.controlButtonSettings);
+                    this.controls('linkedit', 'end');
+                    this.controls('folderedit', 'end');
+                    this.resizeWindow(420);
+                } else if(action == 'end') {
+                    this.dom.help.classList.remove('active');
+                    button.classList.remove('control__item--active');
+                    this.resizeWindow();
+                }
+            break;
+            case 'linkedit': 
+                if(action == 'begin') {
+                    this.dom.linkEditor.classList.add('active');
+                    this.resizeWindow(300);
+                } else if(action == 'end') {
+                    this.dom.linkEditor.classList.remove('active');
+                    this.resizeWindow();
+                    this.focusOnSearch();
+                }
+            break;
+            case 'folderedit': 
+                if(action == 'begin') {
+                    this.dom.folderEditor.classList.add('active');
+                    this.resizeWindow(300);
+                } else if(action == 'end') {
+                    this.dom.folderEditor.classList.remove('active');
+                    this.resizeWindow();
+                    this.focusOnSearch();
+                }
+            break;
+            case 'refresh':
+                if(action == 'begin') {
+                    this.refresh(button, function() {
+                        app.controls(name, 'end', button);
+                    });
+                } else if(action == 'end') {
+                    button.classList.remove('control__item--refreshing','control__item--active');
+                }
+            break;
+        }
+    },
+    
+    //Get folder classname by id
+    getFolderClassName: function(id) {
+        return (this.settings.current.openedFolders.indexOf(id) != -1) ? 'bookmarks__folder--opened' : '';
+    },
+
+    //Register user actions
+    userActionsInit: function() {
+
+        //Folder actions
+        this.dom.folders().forEach(folder => {
+
+            //Adding tabindex
+            folder.setAttribute('tabindex', 1);
+
+            //Left mouse button click on folder
+            folder.addEventListener('click', function() {
+                let id = this.parentNode.dataset.id, opened = app.settings.current.openedFolders;
+                if(this.parentNode.classList.toggle('bookmarks__folder--opened')) {
+                    if(opened.indexOf(id) === -1) {
+                        opened.push(id);
+                    }
+                } else {
+                    let index = opened.indexOf(id);
+                    if (index > -1) {
+                        opened.splice(index, 1);
+                    }
+                }
+                app.settings.save({'openedFolders': opened}, function(){});
+                app.resizeWindow();
+            });
+
+            //Right mouse button click on folder
+            folder.oncontextmenu = function (e) {
+                if(app.settings.current.editEnabled) {
+                    e.preventDefault();
+                    app.folderEditor.prepare({
+                        id:     folder.parentNode.dataset.id,
+                        title:  folder.innerText
+                    });
+                }
+            }
+
+        });
+
+        //Sortable
+        if(this.settings.current.sortEnabled) {
+            app.dom.body.querySelectorAll('ul').forEach(el => {
+                Sortable.create(el, {
+                    group: 'container',
+                    animation: 150,
+                    //Prevent default folders sorting
+                    filter:'li[data-id="1"], li[data-id="2"]',
+                    parentEl: false,
+                    onMove: event => {
+                        //Prevent moving out of container
+                        if(event.to.parentNode.dataset.id === undefined) return false;
+                        //Prevent sorting while searching
+                        return !app.dom.body.classList.contains('bookmarks--searching');
+                    },
+                    onChoose: event => {
+                        this.parentEl = event.to.parentNode.dataset.id;
+                    },
+                    onEnd: event => {
+                        let id = event.item.dataset.id, parentId = event.to.parentNode.dataset.id, index = event.newIndex;
+                        if(this.parentEl == parentId && index > event.oldIndex) {
+                            index++;
+                        }
+                        if(!Number(id) || !Number(parentId) || index < 0) return;
+                        chrome.bookmarks.move(id, {
+                            parentId: parentId,
+                            index: index
+                        });
+                    }
+                });
+            });
+
+        }
+
+        //Bookmark actions
+        this.dom.links().forEach(link => {
+
+            //Adding tabindex
+            link.setAttribute('tabindex', 1);
+
+            //Left mouse button click on bookmark
+            link.onclick = function(e) {
+                app.go({
+                    element     : e,
+                    key         : e.which,
+                    ctrlKey     : e.ctrlKey,
+                    url         : link.dataset.url,
+                    newtab      : app.settings.current.openLinksInNewTabs,
+                    tab         : link.dataset.tab
+                });
+            }
+
+            //Middle mouse button click on bookmark
+            link.addEventListener('mousedown', function(e){
+                if (e.which == 2) {
+                    app.go({
+                        element     : e,
+                        key         : 1,
+                        ctrlKey     : true,
+                        url         : link.dataset.url,
+                        newtab      : true,
+                        tab         : link.dataset.tab
+                    });
+                }
+            });
+
+            //Right mouse button click on bookmark
+            link.oncontextmenu = function (e) {
+                e.preventDefault();
+                if(app.settings.current.editEnabled) {
+                    app.linkEditor.prepare({
+                        id:     link.dataset.id,
+                        icon:   link.style.backgroundImage,
+                        title:  link.querySelector('span').innerText,
+                        url:    link.dataset.url
+                    });
+                }
+            }
+        });
+
+        //Keyboard controls
+        document.onkeydown = function(e) {
+            if(e.which === 32 || e.which === 13) {
+                var element = document.activeElement, isFolder = element.parentNode.classList.contains('bookmarks__folder');
+                if(element.dataset.url || isFolder) {
+                    e.preventDefault();
+                    element.click();
+                }
+            }
+        }
+    },
+
+    //Open bookmark
+    go: function(param) {
+        if(param.key === 1) {
+            if(param.ctrlKey) {
+                chrome.tabs.create({url: param.url, active: false});
+            } else if(param.newtab) {
+                chrome.tabs.create({url: param.url, active: true});
+            } else {
+                chrome.tabs.getSelected(null, function(tab) {
+                    chrome.tabs.update(tab.id, {url: param.url});
+                    window.close();
+                });
+            }
+        }
+    },
+
+    //Adaptive height
+    resizeWindow: function(height) {
+        height = height || this.dom.wrapper.scrollHeight;
+        document.documentElement.style.height = document.body.style.height = height;
+    },
+
+    //Bookmark manager
+    linkEditor: {
+        prepare: function(data) {
+            app.controls('linkedit', 'begin', this);
+            app.dom.linkEditorFieldId.value = data.id;
+            window.setTimeout(function(){
+                app.dom.linkEditorFieldTitle.value = data.title;
+                app.dom.linkEditorFieldUrl.value = data.url;
+                app.dom.linkEditorFieldTitle.style.backgroundImage = data.icon;
+                app.dom.linkEditorFieldTitle.focus()
+            }, 100);
+
+            //Open bookmark in private mode
+            app.dom.linkEditorOpenIncognito.onclick = function() {
+                chrome.windows.create({url: data.url, incognito: true});
+            };
+            
+        },
+        update: function(data) {
+            chrome.bookmarks.update(data.id, {title: data.title, url: data.url}, function(){
+                app.controls('linkedit', 'end', this);
+                app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
+            });
+        },
+        remove: function(data) {
+            chrome.bookmarks.remove(data.id, function(){
+                app.controls('linkedit', 'end', this);
+                app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
+            });
+        },
+        serialize: function(){
+            return {
+                id: app.dom.linkEditorFieldId.value,
+                title: app.dom.linkEditorFieldTitle.value,
+                url: app.dom.linkEditorFieldUrl.value
+            }
+        }
+    },
+
+    //Folder manager
+    folderEditor : {
+        prepare: function(data) {
+            if(data.id == 1 || data.id == 2) return;
+            app.controls('folderedit', 'begin');
+            app.dom.folderEditorFieldId.value = data.id;
+            window.setTimeout(function(){
+                app.dom.folderEditorFieldTitle.value = data.title;
+                app.dom.folderEditorManagerLink.dataset.url = 'chrome://bookmarks/?id=' + data.id;
+                app.dom.folderEditorFieldTitle.focus()
+            }, 100);
+
+            app.dom.folderEditorOpenAll.onclick = function() {
+                app.openLinksInNewTabs(data.id);
+            };
+
+        },
+        update: function(data) {
+            chrome.bookmarks.update(data.id, {title: data.title}, function(){
+                app.controls('folderedit', 'end');
+                app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
+            });
+        },
+        serialize: function(){
+            return {
+                id: app.dom.folderEditorFieldId.value,
+                title: app.dom.folderEditorFieldTitle.value
+            }
+        }
+    },
+
+    //Open bookmarks in new tabs
+    openLinksInNewTabs: function(folderId) {
+        chrome.bookmarks.getSubTree(folderId, function(result){
+            let links = result[0].children;
+            if(typeof links !== 'object') return;
+            links.forEach(link => {
+                if(link.url) {
+                    chrome.tabs.create({url: link.url, active: false});
+                }
+            });
+            this.controls('folderedit', 'end');
+            this.controls('refresh', 'begin', this.dom.controlButtonRefresh);
+        });
+    },
+
+    //Draw version
+    drawVersion: function() {
+        this.dom.versionContainer.innerText = this.manifest.version || '';
+    },
+
+    //Refresh bookmarks tree
+    refresh: function(button, callback) {
+        if(button.classList.contains('control__item--refreshing')) return;
+        button.classList.add('control__item--refreshing');
+        setTimeout(function(){
+            app.settings.update(function(){
+                app.rawTree(function(){
+                    app.dom.content = '';
+                    app.buildHtml(app.raw);
+                    app.insertHtml(function() {
+                        app.appendSettings();
+                        app.userActionsInit();
+                        app.translate();
+                        app.toggleFolderViewPath();
+                    });
+                    callback();
+                });
+            });
+        }, 500);
+    },
+
+    //App start
+    init: function() {
+        this.settings.update(function(){
+            app.rawTree(function(){
+                app.buildHtml(app.raw);
+                app.insertHtml(function() {
+                    app.appendSettings();
+                    app.registerControls();
+                    app.userActionsInit();
+                    app.translate();
+                    app.toggleFolderViewPath();
+                });
+                app.settings.listener();
+            });
+            app.drawVersion();
+        });
+    }
+}
+
+app.init();
