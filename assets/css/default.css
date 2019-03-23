@@ -65,7 +65,7 @@ label:focus, button:focus, .control__item:focus {
 }
 header {
     position:sticky;
-    padding:10px 20px 10px 20px;
+    padding:10px 20px;
     background-color: var(--background-primary-color);
     box-shadow:rgba(0, 0, 0, 0.5) 0 0 6px -2px;
     top:0;
@@ -162,7 +162,8 @@ kbd.help__refresh {
     overflow-y:auto;
     overflow-x:hidden;
     height:auto;
-    max-height:510px
+    max-height:510px;
+    position:relative;
 }
 .bookmarks li{
     font-size:12px;
