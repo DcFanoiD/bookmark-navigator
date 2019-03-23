@@ -10,6 +10,8 @@
     --separator-light-color:#ebebeb;
     --background-input:#f1f3f4;
     --control-background:#e8eaed;
+    --scrollbar-thumb-background:#ced0d1;
+    --scrollbar-track-background:#e8eaed;
     --input-text:rgb(95,99,104);
     --button-border-color:rgb(218, 220, 224);
     --button-hover-background:rgb(248, 250, 255);
@@ -21,6 +23,7 @@ body, html {
     margin:0;
     will-change: height;
     transition:height .10s linear;
+    overflow:hidden;
 }
 body {
     font-family: Roboto, 'Segoe UI', Tahoma, sans-serif;
@@ -36,6 +39,19 @@ body {
     -webkit-box-sizing: border-box;
     box-sizing: border-box
 }
+*::-webkit-scrollbar-track {
+    background-color:var(--scrollbar-track-background)
+}
+*::-webkit-scrollbar {
+    width:12px;
+}
+*::-webkit-scrollbar-thumb {
+    border-radius:6px;
+    background-color:var(--scrollbar-thumb-background)
+}
+*::-webkit-scrollbar-thumb:hover {
+    background-color:var(--primary-color)
+}
 label:focus, button:focus, .control__item:focus {
     box-shadow:var(--separator-color) 0 0 0 1px
 }
@@ -44,8 +60,7 @@ label:focus, button:focus, .control__item:focus {
     user-select: none;
 }
 .wrapper {
-    padding-bottom:10px;
-	position: relative;
+    position: relative;
     min-width: 340px
 }
 header {
@@ -143,7 +158,11 @@ kbd.help__refresh {
 
 /* Bookmarks and folders */
 .bookmarks {
-    padding:10px 20px 0 20px
+    padding:10px 20px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    height:auto;
+    max-height:510px
 }
 .bookmarks li{
     font-size:12px;

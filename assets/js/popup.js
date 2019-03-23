@@ -130,14 +130,17 @@ const app = {
 
             //Remember scroll position
             var isScrolling;
-            window.addEventListener('scroll', function (event) {
+            app.dom.body.addEventListener('scroll', event => {
                 if(!app.settings.current.rememberScrollPosition) {
                     return;
                 }
                 window.clearTimeout(isScrolling);
-                isScrolling = setTimeout(function() {
-                    document.getElementById('currentScrollPos').innerHTML = this.scrollY+"px";
-                    app.settings.save({'scrollPosition': this.scrollY}, function(){});
+                isScrolling = setTimeout(() => {
+                    var scrollTop = app.dom.body.scrollTop;
+                    document.getElementById('currentScrollPos').innerHTML = scrollTop+"px";
+                    app.settings.save({'scrollPosition': scrollTop}, () => {
+                        //console.log('Scroll saved at: '+scrollTop);
+                    });
                 }, 90);
             }, false);
 
@@ -233,7 +236,7 @@ const app = {
     appendSettings: function() {
         //Scrolling to saved position if option enabled
         if(this.settings.current.rememberScrollPosition && this.settings.current.scrollPosition > 0) {
-            window.scrollTo(0, this.settings.current.scrollPosition);
+            app.dom.body.scrollTo(0, this.settings.current.scrollPosition);
         }
         //Focus on search input if option enabled
         this.focusOnSearch();
