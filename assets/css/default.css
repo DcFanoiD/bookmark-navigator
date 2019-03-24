@@ -22,7 +22,7 @@ body, html {
     padding:0;
     margin:0;
     will-change: height;
-    transition:height .10s linear;
+    transition:height .18s linear;
     overflow:hidden;
 }
 body {
