@@ -64,26 +64,26 @@ const app = {
             'showEmptyFolders': false,
         },
         current: {},
-        get: function(key, callback) {
-            chrome.storage.local.get(key, function(result) {
+        get: (key, callback) => {
+            chrome.storage.local.get(key, result => {
                 if('isInit' in result) {
                     app.settings.current = result;
                 } else {
                     app.settings.current = app.settings.defaults;
-                    app.settings.reset(function() {
+                    app.settings.reset(() => {
                         app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
                     });
                 }
                 callback(result);
             });
         },
-        save: function(obj, callback) {
-            chrome.storage.local.set(obj, function() {
+        save: (obj, callback) => {
+            chrome.storage.local.set(obj, () => {
                 if(typeof callback == 'function') callback();
             });
         }, 
-        update: function(callback) {
-            app.settings.get(null, function(result){
+        update: callback => {
+            app.settings.get(null, result => {
                 for (var prop in result) {
                     var el = document.getElementById(prop);
                     if(el && el.type == 'checkbox') {
@@ -93,37 +93,37 @@ const app = {
                 if(typeof callback == 'function') callback();
             });
         },
-        reset: function(callback) {
-            chrome.storage.local.clear(function() {
-                chrome.storage.local.set(app.settings.defaults, function() {
+        reset: callback => {
+            chrome.storage.local.clear(() => {
+                chrome.storage.local.set(app.settings.defaults, () => {
                     if(typeof callback == 'function') callback();
                 });
             });
         },
-        listener: function() {
+        listener: () => {
 
             //Autosave settings when settings form was changed
-            app.dom.settingsForm.addEventListener('change', function(field){
+            app.dom.settingsForm.addEventListener('change', field => {
                 let settings = {};
                 if(field.target.type == 'checkbox') {
                     settings[field.target.id] = field.target.checked;
                 }
-                app.settings.save(settings, function() {
+                app.settings.save(settings, () => {
                     app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
                 });
                 
             });
 
             //Reset settings button
-            app.dom.settingsReset.addEventListener('click', function(e){
+            app.dom.settingsReset.addEventListener('click', e => {
                 e.preventDefault();
-                app.settings.reset(function(){
+                app.settings.reset(() => {
                     app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
                 });
             });
 
             //Close settings popup
-            app.dom.settingsClose.addEventListener('click', function(e){
+            app.dom.settingsClose.addEventListener('click', e => {
                 e.preventDefault();
                 app.controls('settings', 'end', app.dom.controlButtonSettings);
             });
