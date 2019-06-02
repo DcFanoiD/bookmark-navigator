@@ -16,6 +16,7 @@ const app = {
         body:                   document.getElementById('bookmarks'),
         settings:               document.querySelector('.settings'),
         help:                   document.querySelector('.help'),
+        themeLink:              document.getElementById('themeLink'),
         linkEditor:             document.querySelector('.link-editor'),
         linkEditorForm:         document.getElementById('linkEditorForm'),
         linkEditorFieldId:      document.getElementById('linkEditorBookmarkId'),
@@ -49,6 +50,11 @@ const app = {
         }
     },
 
+    themes: {
+        light: 'assets/css/theme.light.css',
+        dark: 'assets/css/theme.dark.css'
+    },
+
     //Settings
     settings: {
         defaults: {
@@ -57,11 +63,12 @@ const app = {
             'showFoldersPath': true,
             'rememberScrollPosition':true,
             'editEnabled':true,
-            'sortEnabled':false,
+            'sortEnabled':true,
             'focusOnSearch': false,
             'openedFolders':[],
             'scrollPosition': 0,
             'showEmptyFolders': false,
+            'theme': 'system'
         },
         current: {},
         get: (key, callback) => {
@@ -86,8 +93,17 @@ const app = {
             app.settings.get(null, result => {
                 for (var prop in result) {
                     var el = document.getElementById(prop);
-                    if(el && el.type == 'checkbox') {
+                    if(!el) { 
+                        continue;
+                    }
+                    if(el.type == 'checkbox') {
                         el.checked = result[prop];
+                    }
+                    if(el.type == 'select-one') {
+                        let options = el.getElementsByTagName('option');
+                        for (let option of options) {
+                            option.selected = (option.value == result[prop]) ? true : false;
+                        }
                     }
                 }
                 if(typeof callback == 'function') callback();
@@ -107,6 +123,9 @@ const app = {
                 let settings = {};
                 if(field.target.type == 'checkbox') {
                     settings[field.target.id] = field.target.checked;
+                }
+                if(field.target.type == 'select-one') {
+                    settings[field.target.id] = field.target.options[field.target.selectedIndex].value;
                 }
                 app.settings.save(settings, () => {
                     app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
@@ -232,8 +251,22 @@ const app = {
         }
     },
 
+    applyTheme: function(href) {
+        let isDarkThemeOsEnabled = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if(!this.settings.current.theme || this.settings.current.theme == 'system') {
+            this.dom.themeLink.href = isDarkThemeOsEnabled ? this.themes['dark'] : this.themes['light'];
+        } else {
+            this.dom.themeLink.href = href || this.themes[this.settings.current.theme] || this.themes['light'];
+        }
+        this.dom.themeLink.onload = function() {
+            app.dom.wrapper.style.display = 'block';
+        }
+    },
+
     //Apply settings
     appendSettings: function() {
+        //Apply theme
+        this.applyTheme();
         //Scrolling to saved position if option enabled
         if(this.settings.current.rememberScrollPosition && this.settings.current.scrollPosition > 0) {
             app.dom.body.scrollTo(0, this.settings.current.scrollPosition);
@@ -311,7 +344,7 @@ const app = {
                     this.controls('help', 'end', this.dom.controlButtonHelp);
                     this.controls('linkedit', 'end');
                     this.controls('folderedit', 'end');
-                    this.resizeWindow(530);
+                    this.resizeWindow(560);
                 } else if(action == 'end') {
                     this.dom.settings.classList.remove('active');
                     button.classList.remove('control__item--active');

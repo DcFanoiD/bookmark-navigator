@@ -50,6 +50,18 @@
     "bookmarks_empty": {
         "message": "У вас пока нет закладок"
     },
+    "settings_theme": {
+        "message": "Тема"
+    },
+    "settings_theme_system": {
+        "message": "Определять автоматически"
+    },
+    "settings_theme_light": {
+        "message": "Светлая"
+    },
+    "settings_theme_dark": {
+        "message": "Тёмная"
+    },
     "settings_open_links_in_new_tabs": {
         "message": "Открывать закладки в новых вкладках"
     },

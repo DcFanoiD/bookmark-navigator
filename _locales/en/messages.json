@@ -50,6 +50,18 @@
     "bookmarks_empty": {
         "message": "Bookmark folder is empty"
     },
+    "settings_theme": {
+        "message": "Theme"
+    },
+    "settings_theme_system": {
+        "message": "Auto (OS theme)"
+    },
+    "settings_theme_light": {
+        "message": "Light"
+    },
+    "settings_theme_dark": {
+        "message": "Dark"
+    },
     "settings_open_links_in_new_tabs": {
         "message": "Left click opens bookmark in new tab"
     },
