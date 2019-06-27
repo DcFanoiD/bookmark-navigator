@@ -53,6 +53,8 @@ const app = {
         }
     },
 
+    currentScrollTopPosition: 0,
+
     themes: {
         light: 'assets/css/theme.light.css',
         dark: 'assets/css/theme.dark.css'
@@ -157,10 +159,10 @@ const app = {
                 }
                 window.clearTimeout(isScrolling);
                 isScrolling = setTimeout(() => {
-                    var scrollTop = app.dom.body.scrollTop;
-                    document.getElementById('currentScrollPos').innerHTML = scrollTop+"px";
-                    app.settings.save({'scrollPosition': scrollTop}, () => {
-                        //console.log('Scroll saved at: '+scrollTop);
+                    app.currentScrollTopPosition = app.dom.body.scrollTop;
+                    document.getElementById('currentScrollPos').textContent = app.currentScrollTopPosition+"px";
+                    app.settings.save({'scrollPosition': app.currentScrollTopPosition}, () => {
+                        console.log('Scroll saved at: '+app.currentScrollTopPosition);
                     });
                 }, 90);
             }, false);
@@ -235,7 +237,7 @@ const app = {
             } else if(element.url){
                 app.dom.content += `
                     <li style="background-image:url(chrome://favicon/${element.url})" data-url="${element.url}" data-id="${element.id}">
-                        <span>${element.title}</span>
+                        <span title="${element.title}">${element.title}</span>
                     </li>`;
                 app.counter++;
             }
@@ -272,13 +274,13 @@ const app = {
     appendSettings: function() {
         //Apply theme
         this.applyTheme(false, function() {
-            app.scrollToSavedPosition();
+            app.scrollToPosition();
         });
     },
 
-    scrollToSavedPosition: function() {
+    scrollToPosition: function(customOffset) {
         if(this.settings.current.rememberScrollPosition && this.settings.current.scrollPosition > 0) {
-            app.dom.body.scrollTo(0, this.settings.current.scrollPosition);
+            app.dom.body.scrollTo(0, (customOffset ? customOffset : this.settings.current.scrollPosition));
         }
     },
 
@@ -315,7 +317,12 @@ const app = {
         if(keywords.length > 0) {
             this.toggleControls('disable');
             this.dom.body.classList.add('bookmarks--searching');
-            this.expandFolders(true) 
+            this.expandFolders(true);
+
+            //Scroll to first found item
+            app.scrollToPosition(1);
+            
+
         } else {
             this.toggleControls('enable');
             this.dom.body.classList.remove('bookmarks--searching');
@@ -323,9 +330,9 @@ const app = {
 
             //Scroll to saved position after searching
             setTimeout(function() {
-                app.scrollToSavedPosition();
                 app.resizeWindow();
-            }, 20);
+                app.scrollToPosition(app.currentScrollTopPosition);
+            }, 50);
         }
         let items = document.querySelectorAll('.bookmarks li[data-url]'), count = 0;
         items.forEach(item => {
