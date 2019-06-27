@@ -76,20 +76,13 @@
 						<label for="showEmptyFolders"></label>
 					</div>
 				</div>
-				<div class="form__field checkbox">
-					<div class="checkbox__description" data-message="settings_focus_on_search"></div>
-					<div class="checkbox__switch">
-						<input type="checkbox" id="focusOnSearch" tabindex="1">
-						<label for="focusOnSearch"></label>
-					</div>
-				</div>
 				<div class="form__field">
 					<a href="chrome://bookmarks/" class="link-out" data-url="chrome://bookmarks/"
 						data-message="link_open_bookmark_manager"></a>
 				</div>
 				<div class="form__field">
-					<button id="settingsClose" data-message="button_close" tabindex="1"></button>
-					<button id="settingsReset" data-message="button_reset_settings" tabindex="1"></button>
+					<button id="settingsClose" class="button" data-message="button_close" tabindex="1"></button>
+					<button id="settingsReset" class="button" data-message="button_reset_settings" tabindex="1"></button>
 				</div>
 			</form>
 		</aside>
@@ -103,10 +96,10 @@
 				<li><kbd class="help__refresh">&nbsp;</kbd> - <span data-message="help_controls_refresh"></span></li>
 			</ul>
 			<div class="form__field">
-				<button id="donate" class="submit input-with-icon"
+				<button id="donate" class="submit button input-with-icon"
 					data-url="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3YUTFEHX67GZ8&source=url"
 					tabindex="1">Donate</button>
-				<button id="github" class="input-with-icon" data-url="https://github.com/DcFanoiD/bookmark-navigator"
+				<button id="github" class="button input-with-icon" data-url="https://github.com/DcFanoiD/bookmark-navigator"
 					tabindex="1" data-message="link_github_text"></button>
 			</div>
 			<div class="plugin-version">
@@ -125,10 +118,10 @@
 					<input type="url" name="url" value="" id="linkEditorBookmarkUrl" required>
 				</div>
 				<div class="form__field form__field--no-separator">
-					<button id="linkEditorUpdateButton" type="submit" class="submit"
+					<button id="linkEditorUpdateButton" type="submit" class="submit button"
 						data-message="button_save"></button>
-					<button id="linkEditorCloseButton" type="button" data-message="button_cancel"></button>
-					<button id="linkEditorRemoveButton" type="button" data-message="button_delete"></button>
+					<button id="linkEditorCloseButton"  class="button" type="button" data-message="button_cancel"></button>
+					<button id="linkEditorRemoveButton"  class="button" type="button" data-message="button_delete"></button>
 				</div>
 				<div class="form__field">
 					<a href="#" class="link-out-private" id="linkEditorOpenPrivate"
@@ -145,9 +138,9 @@
 						class="input-with-icon icon-folder" required>
 				</div>
 				<div class="form__field form__field--no-separator">
-					<button id="folderEditorUpdateButton" type="submit" class="submit"
+					<button id="folderEditorUpdateButton" type="submit" class="submit button"
 						data-message="button_rename"></button>
-					<button id="folderEditorCloseButton" type="button" data-message="button_cancel"></button>
+					<button id="folderEditorCloseButton"  class="button" type="button" data-message="button_cancel"></button>
 				</div>
 				<div class="form__field">
 					<a href="#" class="link-out-tabs" id="folderEditorOpenAll"
@@ -170,6 +163,15 @@
 			</div>
 		</header>
 		<div class="bookmarks" id="bookmarks"></div>
+		<div class="search-status">
+			<div class="search-status__counter">
+				<span data-message="search_found"></span>: 
+				<span id="searchCount"></span>
+			</div>
+			<div class="search-status__cancel">
+				<button id="searchCancelButton" class="button" type="button" data-message="button_exit_search_mode"></button>
+			</div>
+		</div>
 	</div>
 </body>
 <script src="assets/js/sortable.js"></script>

@@ -136,7 +136,7 @@ header {
     overflow-y:auto;
     overflow-x:hidden;
     height:auto;
-    max-height:514px;
+    max-height:490px;
     position:relative;
 }
 .bookmarks li{
@@ -191,8 +191,19 @@ header {
 }
 .bookmarks li[data-url]{
     cursor:pointer;
-    user-select: none
+    user-select: none;
 }
+.bookmarks li[data-url].link-removed{
+    animation-fill-mode: forwards;
+    animation-delay: .22s;
+    animation-duration: .3s;
+    animation-name: removeLink;
+}
+@keyframes removeLink {
+    to {
+      opacity:0
+    }
+  }
 .bookmarks li[data-url] > span {
     display:block;
     white-space:nowrap;
@@ -336,17 +347,8 @@ kbd {
     opacity:0.8
 }
 
-
-/* Forms and input's */
-.form__field {
-    width:100%;
-    padding:10 0;
-    border-top:var(--separator-light-color) 1px solid
-}
-.form__field--no-separator {
-    border-top-width: 0;
-}
-.form__field button {
+/* Buttons */
+button.button {
     padding:0 16px;
     line-height:30px;
     height:32px;
@@ -360,14 +362,24 @@ kbd {
     outline:none;
     transition:background-color .25s ease, border-color .25s ease
 }
-.form__field button:hover {
+button.button:hover {
     background-color:var(--button-hover-background);
     border:var(--button-hover-border) 1px solid;
 }
-.form__field button.submit {
+button.button.submit {
     background-color:var(--primary-color);
     border-color:var(--primary-color);
     color:var(--alternate-color);
+}
+
+/* Forms and input's */
+.form__field {
+    width:100%;
+    padding:10 0;
+    border-top:var(--separator-light-color) 1px solid
+}
+.form__field--no-separator {
+    border-top-width: 0;
 }
 input[type=text],
 input[type=url],
@@ -529,6 +541,27 @@ select {
     transition:background-color .25s ease
 }
 
+
+/* Search status */
+.search-status {
+    border-top:var(--separator-light-color) 1px solid;
+    padding:10px 20px;
+    flex-direction:row;
+    justify-content:space-between;
+    align-items: center;
+    transition:visibility .25s ease, transform .25s ease;
+    transform:translateY(100%);
+    visibility:hidden;
+    display:none
+}
+.bookmarks--searching + .search-status {
+    display:flex;
+    transform:translateY(0);
+    visibility:visible;
+}
+#searchCount {
+    font-weight:bold
+}
 
 /* Sortable */
 .sortable-chosen {

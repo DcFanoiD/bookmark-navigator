@@ -17,6 +17,7 @@ const app = {
         settings:               document.querySelector('.settings'),
         help:                   document.querySelector('.help'),
         themeLink:              document.getElementById('themeLink'),
+        themeSelect:            document.getElementById('theme'),
         linkEditor:             document.querySelector('.link-editor'),
         linkEditorForm:         document.getElementById('linkEditorForm'),
         linkEditorFieldId:      document.getElementById('linkEditorBookmarkId'),
@@ -40,6 +41,8 @@ const app = {
         controlButtonSettings:  document.querySelector('[data-control="settings"]'),
         controlButtonHelp:      document.querySelector('[data-control="help"]'),
         searchInput:            document.getElementById('search'),
+        searchCount:            document.getElementById('searchCount'),
+        searchCancelButton:     document.getElementById('searchCancelButton'),
         versionContainer:       document.getElementById('version'),
         content:                '<ul>',
         folders: function() {
@@ -64,7 +67,6 @@ const app = {
             'rememberScrollPosition':true,
             'editEnabled':true,
             'sortEnabled':true,
-            'focusOnSearch': false,
             'openedFolders':[],
             'scrollPosition': 0,
             'showEmptyFolders': false,
@@ -150,7 +152,7 @@ const app = {
             //Remember scroll position
             var isScrolling;
             app.dom.body.addEventListener('scroll', event => {
-                if(!app.settings.current.rememberScrollPosition) {
+                if(!app.settings.current.rememberScrollPosition || app.dom.body.classList.contains('bookmarks--searching')) {
                     return;
                 }
                 window.clearTimeout(isScrolling);
@@ -171,6 +173,11 @@ const app = {
                 app.controls('folderedit', 'end');
                 app.controls('linkedit', 'end');
             });
+
+            //Search cancel button
+            app.dom.searchCancelButton.addEventListener('click', function(){
+                app.cancelSearch();
+            })
 
             //Bookmark manager: submit form listener
             app.dom.linkEditorForm.addEventListener('submit', function(e) {
@@ -203,8 +210,8 @@ const app = {
     },
 
     //Build bookmark tree
-    rawTree: function(callback) {
-        chrome.bookmarks.getTree(function(branch) {
+    rawTree: callback => {
+        chrome.bookmarks.getTree(branch => {
             app.raw = branch[0];
             callback();
         });
@@ -244,35 +251,35 @@ const app = {
         callback();
     },
 
-    //Focus on search input
-    focusOnSearch: function() {
-        if(this.settings.current.focusOnSearch){
-            this.dom.searchInput.focus();
-        }
-    },
+    //Switch focus
+    switchFocus: element => element.focus(),
 
-    applyTheme: function(href) {
+    applyTheme: function(href, callback) {
         let isDarkThemeOsEnabled = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
         if(!this.settings.current.theme || this.settings.current.theme == 'system') {
             this.dom.themeLink.href = isDarkThemeOsEnabled ? this.themes['dark'] : this.themes['light'];
         } else {
             this.dom.themeLink.href = href || this.themes[this.settings.current.theme] || this.themes['light'];
         }
-        this.dom.themeLink.onload = function() {
-            app.dom.wrapper.style.display = 'block';
+        this.dom.themeLink.onload = () => {
+            this.dom.wrapper.style.display = 'block';
+            this.switchFocus(this.dom.searchInput);
+            callback();
         }
     },
 
     //Apply settings
     appendSettings: function() {
         //Apply theme
-        this.applyTheme();
-        //Scrolling to saved position if option enabled
+        this.applyTheme(false, function() {
+            app.scrollToSavedPosition();
+        });
+    },
+
+    scrollToSavedPosition: function() {
         if(this.settings.current.rememberScrollPosition && this.settings.current.scrollPosition > 0) {
             app.dom.body.scrollTo(0, this.settings.current.scrollPosition);
         }
-        //Focus on search input if option enabled
-        this.focusOnSearch();
     },
 
     //Translate
@@ -289,24 +296,54 @@ const app = {
         (this.settings.current.showFoldersPath) ? this.dom.body.classList.add('show-path') : this.dom.body.classList.remove('show-path');
     },
 
+    toggleControls(state) {
+        this.dom.controlButtons.forEach(control => {
+            switch (state) {
+                case 'disable': 
+                    control.setAttribute('disabled', 'disabled')
+                    break;
+                case 'enable': 
+                    control.removeAttribute('disabled');
+                    break;
+            }
+        });
+    },
+
     //Search logic
     search: function(keywords) {
         keywords = keywords.trim();
         if(keywords.length > 0) {
+            this.toggleControls('disable');
             this.dom.body.classList.add('bookmarks--searching');
             this.expandFolders(true) 
         } else {
+            this.toggleControls('enable');
             this.dom.body.classList.remove('bookmarks--searching');
             this.expandFolders(false);
+
+            //Scroll to saved position after searching
+            setTimeout(function() {
+                app.scrollToSavedPosition();
+                app.resizeWindow();
+            }, 20);
         }
-        let items = document.querySelectorAll('.bookmarks li[data-url]');
+        let items = document.querySelectorAll('.bookmarks li[data-url]'), count = 0;
         items.forEach(item => {
             var text = item.innerHTML.toLowerCase(), 
                 url  = item.dataset.url;
-            item.style.display = (text.includes(keywords.toLowerCase()) || url.includes(keywords.toLowerCase()))
-                ? 'list-item' 
-                : 'none';
+            if(text.includes(keywords.toLowerCase()) || url.includes(keywords.toLowerCase())) {
+                item.style.display = 'list-item';
+                count++;
+            } else {
+                item.style.display = 'none'
+            }
         });
+        this.dom.searchCount.textContent = count;
+    },
+
+    cancelSearch() {
+        app.dom.searchInput.value = '';
+        app.search('');
     },
 
     //Expand or collapse folder
@@ -344,12 +381,13 @@ const app = {
                     this.controls('help', 'end', this.dom.controlButtonHelp);
                     this.controls('linkedit', 'end');
                     this.controls('folderedit', 'end');
-                    this.resizeWindow(560);
+                    this.resizeWindow(520);
+                    this.switchFocus(this.dom.themeSelect);
                 } else if(action == 'end') {
                     this.dom.settings.classList.remove('active');
                     button.classList.remove('control__item--active');
                     this.resizeWindow();
-                    this.focusOnSearch();
+                    this.switchFocus(this.dom.searchInput);
                 }
             break;
             case 'help': 
@@ -363,6 +401,7 @@ const app = {
                     this.dom.help.classList.remove('active');
                     button.classList.remove('control__item--active');
                     this.resizeWindow();
+                    this.switchFocus(this.dom.searchInput);
                 }
             break;
             case 'linkedit': 
@@ -372,7 +411,7 @@ const app = {
                 } else if(action == 'end') {
                     this.dom.linkEditor.classList.remove('active');
                     this.resizeWindow();
-                    this.focusOnSearch();
+                    this.switchFocus(this.dom.searchInput);
                 }
             break;
             case 'folderedit': 
@@ -382,7 +421,7 @@ const app = {
                 } else if(action == 'end') {
                     this.dom.folderEditor.classList.remove('active');
                     this.resizeWindow();
-                    this.focusOnSearch();
+                    this.switchFocus(this.dom.searchInput);
                 }
             break;
             case 'refresh':
@@ -392,6 +431,7 @@ const app = {
                     });
                 } else if(action == 'end') {
                     button.classList.remove('control__item--refreshing','control__item--active');
+                    this.switchFocus(this.dom.searchInput);
                 }
             break;
         }
@@ -582,7 +622,12 @@ const app = {
         remove: function(data) {
             chrome.bookmarks.remove(data.id, function(){
                 app.controls('linkedit', 'end', this);
-                app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
+                let item = document.querySelector('[data-id="'+data.id+'"]');
+                item.classList.add('link-removed');
+                item.addEventListener("animationend", item => {
+                    item.target.remove();
+                    app.resizeWindow();
+                });
             });
         },
         serialize: function(){

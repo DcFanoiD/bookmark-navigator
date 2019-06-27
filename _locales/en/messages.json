@@ -26,6 +26,9 @@
     "button_reset_settings": {
         "message": "Reset to defaults"
     },
+    "button_exit_search_mode": {
+        "message": "Exit from search mode"
+    },
     "change_folder": {
         "message": "Manage folder"
     },
@@ -86,9 +89,6 @@
     "settings_show_empty_folders": {
         "message": "Show empty folders"
     },
-    "settings_focus_on_search": {
-        "message": "Focus on search input by default"
-    },
     "help_controls_lmb": {
         "message": "Open bookmark in current tab"
     },
@@ -106,6 +106,9 @@
     },
     "link_open_bookmark_manager": {
         "message": "Open bookmark manager"
+    },
+    "search_found": {
+        "message": "Found"
     },
     "link_github_text": {
         "message": "View on GitHub"

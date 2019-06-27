@@ -1,5 +1,5 @@
 :root {
-    --text-color:rgb(247, 247, 247);
+    --text-color:rgb(217, 217, 217);
     --text-secondary:rgb(154, 160, 166);
     --alternate-color:rgb(41, 42, 45);
     --primary-color:rgb(142, 180, 246);
@@ -13,7 +13,7 @@
     --input-background-focus:rgb(31, 32, 34);
     --scrollbar-thumb-background:rgb(47, 48, 49);
     --scrollbar-track-background:rgb(35, 36, 39);
-    --input-text:rgb(247, 247, 247);
+    --input-text:rgb(217, 217, 217);
     --button-border-color:rgba(255,255,255,0.08);
     --button-hover-background:rgb(49, 53, 60);
     --button-hover-border:rgba(255,255,255,0.1);

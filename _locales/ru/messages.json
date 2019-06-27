@@ -26,6 +26,9 @@
     "button_reset_settings": {
         "message": "Сбросить настройки"
     },
+    "button_exit_search_mode": {
+        "message": "Выйти из режима поиска"
+    },
     "change_folder": {
         "message": "Изменить папку"
     },
@@ -86,9 +89,6 @@
     "settings_show_empty_folders": {
         "message": "Показывать пустые папки"
     },
-    "settings_focus_on_search": {
-        "message": "Фокус на поле поиска по умолчанию"
-    },
     "help_controls_lmb": {
         "message": "Открыть закладку в текущей или новой вкладке, в зависимости от текущих настроек"
     },
@@ -106,6 +106,9 @@
     },
     "link_open_bookmark_manager": {
         "message": "Открыть диспетчер закладок"
+    },
+    "search_found": {
+        "message": "Найдено"
     },
     "link_github_text": {
         "message": "Открыть на GitHub"
