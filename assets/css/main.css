@@ -31,7 +31,6 @@ textarea {
     width:12px;
 }
 *::-webkit-scrollbar-thumb {
-    border-radius:6px;
     background-color:var(--scrollbar-thumb-background)
 }
 *::-webkit-scrollbar-thumb:hover {
