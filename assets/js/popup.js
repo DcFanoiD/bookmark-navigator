@@ -154,7 +154,7 @@ const app = {
             //Remember scroll position
             var isScrolling;
             app.dom.body.addEventListener('scroll', event => {
-                if(!app.settings.current.rememberScrollPosition || app.dom.body.classList.contains('bookmarks--searching')) {
+                if(!app.settings.current.rememberScrollPosition || app.isSearching()) {
                     return;
                 }
                 window.clearTimeout(isScrolling);
@@ -162,7 +162,7 @@ const app = {
                     app.currentScrollTopPosition = app.dom.body.scrollTop;
                     document.getElementById('currentScrollPos').textContent = app.currentScrollTopPosition+"px";
                     app.settings.save({'scrollPosition': app.currentScrollTopPosition}, () => {
-                        console.log('Scroll saved at: '+app.currentScrollTopPosition);
+                        //console.log('Scroll saved at: '+app.currentScrollTopPosition);
                     });
                 }, 90);
             }, false);
@@ -237,7 +237,7 @@ const app = {
             } else if(element.url){
                 app.dom.content += `
                     <li style="background-image:url(chrome://favicon/${element.url})" data-url="${element.url}" data-id="${element.id}">
-                        <span title="${element.title}">${element.title}</span>
+                        <span title="${element.title.length > 45 ? element.title : ''}">${element.title}</span>
                     </li>`;
                 app.counter++;
             }
@@ -313,8 +313,11 @@ const app = {
 
     //Search logic
     search: function(keywords) {
+
         keywords = keywords.trim();
+
         if(keywords.length > 0) {
+
             this.toggleControls('disable');
             this.dom.body.classList.add('bookmarks--searching');
             this.expandFolders(true);
@@ -322,8 +325,8 @@ const app = {
             //Scroll to first found item
             app.scrollToPosition(1);
             
-
         } else {
+
             this.toggleControls('enable');
             this.dom.body.classList.remove('bookmarks--searching');
             this.expandFolders(false);
@@ -332,25 +335,38 @@ const app = {
             setTimeout(function() {
                 app.resizeWindow();
                 app.scrollToPosition(app.currentScrollTopPosition);
-            }, 50);
+            }, 10);
         }
-        let items = document.querySelectorAll('.bookmarks li[data-url]'), count = 0;
+
+        let items = document.querySelectorAll('.bookmarks li[data-url]'),
+            count = 0;
+
         items.forEach(item => {
+
             var text = item.innerHTML.toLowerCase(), 
                 url  = item.dataset.url;
+
             if(text.includes(keywords.toLowerCase()) || url.includes(keywords.toLowerCase())) {
                 item.style.display = 'list-item';
                 count++;
             } else {
                 item.style.display = 'none'
             }
+            
         });
+
+        //Search counter update
         this.dom.searchCount.textContent = count;
     },
 
+    isSearching() {
+        return this.dom.body.classList.contains('bookmarks--searching');
+    },
+
     cancelSearch() {
-        app.dom.searchInput.value = '';
-        app.search('');
+        this.dom.searchInput.value = '';
+        this.search('');
+        this.switchFocus(this.dom.searchInput);
     },
 
     //Expand or collapse folder
@@ -460,6 +476,7 @@ const app = {
 
             //Left mouse button click on folder
             folder.addEventListener('click', function() {
+                if(app.isSearching()) return;
                 let id = this.parentNode.dataset.id, opened = app.settings.current.openedFolders;
                 if(this.parentNode.classList.toggle('bookmarks__folder--opened')) {
                     if(opened.indexOf(id) === -1) {
@@ -501,7 +518,7 @@ const app = {
                         //Prevent moving out of container
                         if(event.to.parentNode.dataset.id === undefined) return false;
                         //Prevent sorting while searching
-                        return !app.dom.body.classList.contains('bookmarks--searching');
+                        return !app.isSearching();
                     },
                     onChoose: event => {
                         this.parentEl = event.to.parentNode.dataset.id;
@@ -636,6 +653,9 @@ const app = {
                     item.target.remove();
                     app.resizeWindow();
                 });
+                if(app.isSearching()) {
+                    app.dom.searchCount.textContent = app.dom.searchCount.textContent - 1;
+                }
             });
         },
         serialize: function(){
@@ -650,7 +670,7 @@ const app = {
     //Folder manager
     folderEditor : {
         prepare: function(data) {
-            if(data.id == 1 || data.id == 2 || app.dom.body.classList.contains('bookmarks--searching')) return;
+            if(data.id == 1 || data.id == 2 || app.isSearching()) return;
             app.controls('folderedit', 'begin');
             app.dom.folderEditorFieldId.value = data.id;
             window.setTimeout(function(){
@@ -679,7 +699,7 @@ const app = {
     },
 
     //Open bookmarks in new tabs
-    openLinksInNewTabs: function(folderId) {
+    openLinksInNewTabs: folderId => {
         chrome.bookmarks.getSubTree(folderId, function(result){
             let links = result[0].children;
             if(typeof links !== 'object') return;
@@ -688,8 +708,8 @@ const app = {
                     chrome.tabs.create({url: link.url, active: false});
                 }
             });
-            this.controls('folderedit', 'end');
-            this.controls('refresh', 'begin', this.dom.controlButtonRefresh);
+            app.controls('folderedit', 'end');
+            app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
         });
     },
 

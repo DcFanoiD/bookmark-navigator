@@ -97,10 +97,14 @@ header {
     cursor:pointer;
     position:relative;
     will-change: background-color;
-    transition:background-color .25s ease
+    transition:background-color .25s ease, opacity .25s ease
 }
 .control__item:hover {
     background-color:var(--background-input)
+}
+.control__item[disabled] {
+    cursor:not-allowed;
+    background-color:transparent;
 }
 .control__item:active,
 .control__item--active {
@@ -180,6 +184,12 @@ header {
 .bookmarks li.bookmarks__folder > span:focus{
     font-weight:bold;
     outline:none
+}
+.bookmarks--searching li.bookmarks__folder > span,
+.bookmarks--searching li.bookmarks__folder > span:focus {
+    font-weight:normal;
+    cursor:default;
+    color:var(--text-secondary);
 }
 .bookmarks li.bookmarks__folder > span + ul{
     display:none
