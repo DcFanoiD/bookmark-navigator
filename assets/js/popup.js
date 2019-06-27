@@ -616,7 +616,8 @@ const app = {
         update: function(data) {
             chrome.bookmarks.update(data.id, {title: data.title, url: data.url}, function(){
                 app.controls('linkedit', 'end', this);
-                app.controls('refresh', 'begin', app.dom.controlButtonRefresh);
+                let item = document.querySelector('[data-id="'+data.id+'"]');
+                item.querySelector('span').textContent = data.title;
             });
         },
         remove: function(data) {
@@ -642,7 +643,7 @@ const app = {
     //Folder manager
     folderEditor : {
         prepare: function(data) {
-            if(data.id == 1 || data.id == 2) return;
+            if(data.id == 1 || data.id == 2 || app.dom.body.classList.contains('bookmarks--searching')) return;
             app.controls('folderedit', 'begin');
             app.dom.folderEditorFieldId.value = data.id;
             window.setTimeout(function(){
