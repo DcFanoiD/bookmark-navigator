@@ -7,8 +7,9 @@ Extension ships regularly with new features and bug fixes. You can get the lates
 
 # Changelist
 1.3.0
-+ Added experimental scroll top/bottom button, option available in settings and disabled by default.
-+ Fixed issue that not return to previous saved scroll position.
++ Added experimental scroll top/bottom button, option available in settings and disabled by default
++ Fixed issue that not return to previous saved scroll position
++ Added scroll animation
 + Added "Search mode" - special isolated mode that activates when search is started
 + Other small improvements
 
