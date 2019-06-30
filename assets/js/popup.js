@@ -43,6 +43,7 @@ const app = {
         searchInput:            document.getElementById('search'),
         searchCount:            document.getElementById('searchCount'),
         searchCancelButton:     document.getElementById('searchCancelButton'),
+        scrollerButton:         document.getElementById('scrollerButton'),
         versionContainer:       document.getElementById('version'),
         content:                '<ul>',
         folders: function() {
@@ -72,7 +73,8 @@ const app = {
             'openedFolders':[],
             'scrollPosition': 0,
             'showEmptyFolders': false,
-            'theme': 'system'
+            'theme': 'system',
+            'showScrollButton': false
         },
         current: {},
         get: (key, callback) => {
@@ -176,7 +178,7 @@ const app = {
                 app.controls('linkedit', 'end');
             });
 
-            //Search cancel button
+            //Exit search mode button
             app.dom.searchCancelButton.addEventListener('click', function(){
                 app.cancelSearch();
             })
@@ -208,6 +210,11 @@ const app = {
                 app.controls('folderedit', 'end');
             });
 
+            //ScrollerButton click
+            app.dom.scrollerButton.addEventListener('click', function() {
+                app.scroller.scroll();
+            });
+
         }
     },
 
@@ -215,7 +222,7 @@ const app = {
     rawTree: callback => {
         chrome.bookmarks.getTree(branch => {
             app.raw = branch[0];
-            callback();
+            if(typeof callback == 'function') callback();
         });
     },
 
@@ -256,8 +263,12 @@ const app = {
     //Switch focus
     switchFocus: element => element.focus(),
 
+    //Apply theme and show popup content right after theme loaded
     applyTheme: function(href, callback) {
+
+        //Check user OS if dark theme enabled
         let isDarkThemeOsEnabled = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
         if(!this.settings.current.theme || this.settings.current.theme == 'system') {
             this.dom.themeLink.href = isDarkThemeOsEnabled ? this.themes['dark'] : this.themes['light'];
         } else {
@@ -266,21 +277,28 @@ const app = {
         this.dom.themeLink.onload = () => {
             this.dom.wrapper.style.display = 'block';
             this.switchFocus(this.dom.searchInput);
-            callback();
+            if(typeof callback == 'function') callback();
         }
     },
 
     //Apply settings
     appendSettings: function() {
-        //Apply theme
+        //Call theme to load and scroll to last saved position
         this.applyTheme(false, function() {
-            app.scrollToPosition();
+            app.scrollToSavedPosition();
         });
     },
 
-    scrollToPosition: function(customOffset) {
+    scrollToPosition: function(offset, behavior) {
+        app.dom.body.scrollTo({
+            top: offset,
+            behavior: behavior || 'auto'
+        });
+    },
+
+    scrollToSavedPosition() {
         if(this.settings.current.rememberScrollPosition && this.settings.current.scrollPosition > 0) {
-            app.dom.body.scrollTo(0, (customOffset ? customOffset : this.settings.current.scrollPosition));
+            this.scrollToPosition(this.settings.current.scrollPosition);
         }
     },
 
@@ -323,7 +341,7 @@ const app = {
             this.expandFolders(true);
 
             //Scroll to first found item
-            app.scrollToPosition(1);
+            app.scrollToPosition(1, 'smooth');
             
         } else {
 
@@ -334,7 +352,7 @@ const app = {
             //Scroll to saved position after searching
             setTimeout(function() {
                 app.resizeWindow();
-                app.scrollToPosition(app.currentScrollTopPosition);
+                app.scrollToPosition(app.currentScrollTopPosition, 'smooth');
             }, 10);
         }
 
@@ -357,6 +375,9 @@ const app = {
 
         //Search counter update
         this.dom.searchCount.textContent = count;
+
+        //Scroller button reinit
+        app.scroller.init();
     },
 
     isSearching() {
@@ -404,7 +425,7 @@ const app = {
                     this.controls('help', 'end', this.dom.controlButtonHelp);
                     this.controls('linkedit', 'end');
                     this.controls('folderedit', 'end');
-                    this.resizeWindow(520);
+                    this.resizeWindow(570);
                     this.switchFocus(this.dom.themeSelect);
                 } else if(action == 'end') {
                     this.dom.settings.classList.remove('active');
@@ -642,6 +663,7 @@ const app = {
                 app.controls('linkedit', 'end', this);
                 let item = document.querySelector('[data-id="'+data.id+'"]');
                 item.querySelector('span').textContent = data.title;
+                item.dataset.url = data.url;
             });
         },
         remove: function(data) {
@@ -713,9 +735,72 @@ const app = {
         });
     },
 
+    //Scroller
+    scroller: {
+        status : {
+            direction: false,
+            visible: false
+        },
+        draw(){
+            var height           = app.dom.body.offsetHeight,
+                heightWithScroll = app.dom.body.scrollHeight,
+                top              = app.dom.body.scrollTop,
+                bottom           = heightWithScroll - top - height;
+
+                app.scroller.status.direction = 
+                (top > bottom) 
+                ? 'top' 
+                : 'bottom';
+
+                app.scroller.status.visible = 
+                (top > height / 3 && heightWithScroll > height) 
+                ? true 
+                : false;
+
+                if(app.scroller.status.visible && app.settings.current.showScrollButton) {
+                    app.dom.scrollerButton.classList.add('scroller--visible');
+
+                    if(app.scroller.status.direction == 'top') {
+                        app.dom.scrollerButton.classList.add('scroller--top');
+                    } else {
+                        app.dom.scrollerButton.classList.remove('scroller--top');
+                    }
+
+                } else {
+                    app.dom.scrollerButton.classList.remove('scroller--visible')
+                }
+        },
+        scroll() {
+            switch (app.scroller.status.direction) {
+                case 'top':
+                    app.scrollToPosition(0, 'smooth')
+                    break;
+                case 'bottom':
+                    app.scrollToPosition(app.dom.body.scrollHeight, 'smooth')
+                    break;
+            }
+        },
+        update() {
+            var nowScrolling;
+            window.clearTimeout(nowScrolling);
+                nowScrolling = setTimeout(() => {
+                    app.scroller.draw();
+            }, 50);
+        },
+        init() {
+            if(app.settings.current.showScrollButton) {
+                app.scroller.draw();
+                app.dom.body.addEventListener('scroll', app.scroller.update, false);
+            } else {
+                app.dom.body.removeEventListener('scroll', app.scroller.update, false);
+                app.dom.scrollerButton.classList.remove('scroller--visible','scroller--top');
+            }
+        }
+    },
+
     //Draw version
     drawVersion: function() {
-        this.dom.versionContainer.innerText = this.manifest.version || '';
+        this.dom.versionContainer.textContent = this.manifest.version || '';
     },
 
     //Refresh bookmarks tree
@@ -732,6 +817,7 @@ const app = {
                         app.userActionsInit();
                         app.translate();
                         app.toggleFolderViewPath();
+                        app.scroller.init();
                     });
                     callback();
                 });
@@ -750,6 +836,7 @@ const app = {
                     app.userActionsInit();
                     app.translate();
                     app.toggleFolderViewPath();
+                    app.scroller.init();
                 });
                 app.settings.listener();
             });

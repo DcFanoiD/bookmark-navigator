@@ -6,6 +6,12 @@ Extension ships regularly with new features and bug fixes. You can get the lates
 ![Bookmark Navigator Screenshot](https://lh3.googleusercontent.com/DODUOy00-CX1AxXctQ12Y_dHJ_87p0UU4pgh-1sWMyMj_mumXPNxqd5x9bYyxpqFO4mnghoa=w640-h400-e365)
 
 # Changelist
+1.3.0
++ Added experimental scroll top/bottom button, option available in settings and disabled by default.
++ Fixed issue that not return to previous saved scroll position.
++ Added "Search mode" - special isolated mode that activates when search is started
++ Other small improvements
+
 1.2.0
 + Added theme select setting with two themes (light and dark)
 + Added theme autodetection from OS settings

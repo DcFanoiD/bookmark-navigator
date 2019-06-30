@@ -70,6 +70,18 @@
 					</div>
 				</div>
 				<div class="form__field checkbox">
+					<div class="checkbox__description">
+						<message data-message="settings_show_scrollbutton"></message>
+						<span>
+							<description data-message="settings_show_scrollbutton_description"></description>
+						</span>
+					</div>
+					<div class="checkbox__switch">
+						<input type="checkbox" id="showScrollButton" tabindex="1">
+						<label for="showScrollButton"></label>
+					</div>
+				</div>
+				<div class="form__field checkbox">
 					<div class="checkbox__description" data-message="settings_show_empty_folders"></div>
 					<div class="checkbox__switch">
 						<input type="checkbox" id="showEmptyFolders" tabindex="1">
@@ -172,6 +184,7 @@
 				<button id="searchCancelButton" class="button" type="button" data-message="button_exit_search_mode"></button>
 			</div>
 		</div>
+		<div class="scroller" id="scrollerButton"></div>
 	</div>
 </body>
 <script src="assets/js/sortable.js"></script>
