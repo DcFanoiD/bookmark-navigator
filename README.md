@@ -10,6 +10,7 @@ Extension ships regularly with new features and bug fixes. You can get the lates
 + Added experimental scroll top/bottom button, option available in settings and disabled by default
 + Fixed issue that not return to previous saved scroll position
 + Added scroll animation
++ Added title tooltip for bookmark if it's name length is too large
 + Added "Search mode" - special isolated mode that activates when search is started
 + Other small improvements
 
