@@ -1,3 +1,7 @@
+![img](https://img.shields.io/badge/version-1.3.0-000000.svg)
+![img](https://img.shields.io/badge/language-JavaScript-dcc109.svg)
+![img](https://img.shields.io/badge/license-MIT-22a7f0.svg)
+![img](https://img.shields.io/badge/size-~40kb-2ecc71.svg)
 # Bookmark Navigator
 Fast and simple tree-view bookmark navigation extension for Google Chrome
 
