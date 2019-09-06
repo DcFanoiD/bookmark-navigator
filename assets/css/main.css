@@ -311,23 +311,32 @@ aside h2 {
 .help__controls {
     padding:0;
     margin:0;
-    list-style:none
+    list-style:none;
 }
-.help__controls li{
-    display:block;
-    margin-bottom:10px
+.help__item {
+    display:grid;
+    grid-template-columns: 3fr 1fr;
+    align-items: center;
+    column-gap: 10px;
+    padding:10px 0;
+    border-top:var(--separator-light-color) 1px solid;
+}
+.kbd__combination {
+    text-align:right;
+    white-space:nowrap;
+    color: var(--text-secondary);
 }
 kbd {
     display:inline-block;
-    min-width:26px;
-    min-height:18px;
+    min-width:24px;
+    min-height:16px;
     background-repeat:no-repeat;
     background-position:50% 50%;
     background-size:auto 76%;
-    margin-right:4px;
+    margin-left:4px;
     background-color: var(--background-input);
     border: 1px solid var(--separator-color);
-    padding:3px 6px;
+    padding:2px 6px;
     border-radius:3px;
     text-align:center
 }
@@ -384,7 +393,7 @@ button.button.submit {
 /* Forms and input's */
 .form__field {
     width:100%;
-    padding:10 0;
+    padding:10px 0;
     border-top:var(--separator-light-color) 1px solid
 }
 .form__field--no-separator {
@@ -623,5 +632,5 @@ select {
     font-size:90%;
     position:absolute;
     left:20px;
-    bottom:20px;
+    bottom:10px;
 }

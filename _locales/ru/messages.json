@@ -89,9 +89,6 @@
     "settings_show_scrollbutton": {
         "message":"Показывать кнопку скролла вверх/вниз"
     },
-    "settings_show_scrollbutton_description": {
-        "message":"Экспериментальная функция"
-    },
     "settings_show_empty_folders": {
         "message": "Показывать пустые папки"
     },

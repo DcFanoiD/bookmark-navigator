@@ -87,10 +87,7 @@
         "message": "Enable sorting"
     },
     "settings_show_scrollbutton": {
-        "message":"Show scroll top/bottom button"
-    },
-    "settings_show_scrollbutton_description": {
-        "message":"Experimental feature"
+        "message":"Show scroll to top/bottom button"
     },
     "settings_show_empty_folders": {
         "message": "Show empty folders"

@@ -72,9 +72,6 @@
 				<div class="form__field checkbox">
 					<div class="checkbox__description">
 						<message data-message="settings_show_scrollbutton"></message>
-						<span>
-							<description data-message="settings_show_scrollbutton_description"></description>
-						</span>
 					</div>
 					<div class="checkbox__switch">
 						<input type="checkbox" id="showScrollButton" tabindex="1">
@@ -101,11 +98,36 @@
 		<aside class="help">
 			<h2 data-message="title_controls"></h2>
 			<ul class="help__controls">
-				<li><kbd>LMB</kbd> - <span data-message="help_controls_lmb"></span></li>
-				<li><kbd>Ctrl</kbd>+ <kbd>LMB</kbd> - <span data-message="help_controls_lmb_ctrl"></span></li>
-				<li><kbd>RMB</kbd> - <span data-message="help_controls_rmb"></span></li>
-				<li><kbd>Tab</kbd>&rarr; <kbd>Space</kbd> - <span data-message="help_controls_tab_space"></span></li>
-				<li><kbd class="help__refresh">&nbsp;</kbd> - <span data-message="help_controls_refresh"></span></li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_lmb"></span>
+					<div class="kbd__combination">
+						<kbd>LMB</kbd>
+					</div>
+				</li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_lmb_ctrl"></span>
+					<div class="kbd__combination">
+						<kbd>Ctrl</kbd> +<kbd>LMB</kbd>
+					</div>
+				</li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_rmb"></span>
+					<div class="kbd__combination">
+						<kbd>RMB</kbd>
+					</div>
+				</li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_tab_space"></span>
+					<div class="kbd__combination">
+						<kbd>Tab</kbd> &rarr;<kbd>Space</kbd>
+					</div>
+				</li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_refresh"></span>
+					<div class="kbd__combination">
+						<kbd class="help__refresh">&nbsp;</kbd>
+					</div>
+				</li>
 			</ul>
 			<div class="form__field">
 				<button id="donate" class="submit button input-with-icon"

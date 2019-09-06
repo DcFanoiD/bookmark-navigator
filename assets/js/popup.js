@@ -74,7 +74,7 @@ const app = {
             'scrollPosition': 0,
             'showEmptyFolders': false,
             'theme': 'system',
-            'showScrollButton': false
+            'showScrollButton': true
         },
         current: {},
         get: (key, callback) => {
@@ -181,7 +181,7 @@ const app = {
             //Exit search mode button
             app.dom.searchCancelButton.addEventListener('click', function(){
                 app.cancelSearch();
-            })
+            });
 
             //Bookmark manager: submit form listener
             app.dom.linkEditorForm.addEventListener('submit', function(e) {
@@ -425,7 +425,7 @@ const app = {
                     this.controls('help', 'end', this.dom.controlButtonHelp);
                     this.controls('linkedit', 'end');
                     this.controls('folderedit', 'end');
-                    this.resizeWindow(570);
+                    this.resizeWindow(550);
                     this.switchFocus(this.dom.themeSelect);
                 } else if(action == 'end') {
                     this.dom.settings.classList.remove('active');
@@ -440,7 +440,7 @@ const app = {
                     this.controls('settings', 'end', this.dom.controlButtonSettings);
                     this.controls('linkedit', 'end');
                     this.controls('folderedit', 'end');
-                    this.resizeWindow(420);
+                    this.resizeWindow(500);
                 } else if(action == 'end') {
                     this.dom.help.classList.remove('active');
                     button.classList.remove('control__item--active');
@@ -636,8 +636,7 @@ const app = {
 
     //Adaptive height
     resizeWindow: function(height) {
-        height = height || this.dom.wrapper.scrollHeight;
-        document.documentElement.style.height = document.body.style.height = height;
+        document.documentElement.style.height = document.body.style.height = height || this.dom.wrapper.scrollHeight;
     },
 
     //Bookmark manager
