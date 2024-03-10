@@ -30,5 +30,5 @@ Extension ships regularly with new features and bug fixes. You can get the lates
 1.3.2
 + Migrated from manifest v2 to manifest v3
 + Fixed defaul font family to system default
-- Removed donate button
++ Removed donate button
 + Minor UI fixes
