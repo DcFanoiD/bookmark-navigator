@@ -22,7 +22,7 @@
       "48": "assets/images/icon48.png",
       "64": "assets/images/icon64.png"
    },
-   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo8Doyw6Al4O1GfVNnBB/c0kawh9Pn0uEprvGtney6OveOYEqsV/4Jn411VGA1SgPyCHufSw+tLp/x8rGyVU9CHNK4KrmYWwZdgJwI402bg1CapDb9t193lXNNiIxHuWSk/ykZxeJxbaII3nwkHZuQ9OPqzZeID6DDMlQPauGERdHjIUtfDqlSkYBN6TmR4tz3FDLBaTAxGVLjxH/X+EZfA78NCEgbU/3aGwfJbb2zX12+fnAely3nxt8/8tMwYVvYf+7PRWSYv85sL55hETZD1hVXmYz1qbQRLAlyqYR3bVuKkcszT2saKzVPwQ+sxgO6z5+CjCydlhE+FG/p7favQIDAQAB",
+   "key": "",
    "manifest_version": 3,
    "name": "__MSG_chrome_extension_name__",
    "permissions": [ "tabs", "storage", "bookmarks", "favicon" ],
