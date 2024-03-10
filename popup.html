@@ -1,0 +1,211 @@
+<!DOCTYPE>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="" id="themeLink">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<title>Bookmark Navigator</title>
+</head>
+<body>
+	<div class="wrapper" style="display:none">
+		<aside class="settings">
+			<h2 data-message="title_settings"></h2>
+			<form class="form" id="settingsForm">
+				<div class="form__field select">
+					<div class="select__description">
+						<message data-message="settings_theme"></message>
+					</div>
+					<div class="select__input">
+						<select id="theme" tabindex="1">
+							<option value="system" data-message="settings_theme_system"></option>
+							<option value="light" data-message="settings_theme_light"></option>
+							<option value="dark" data-message="settings_theme_dark"></option>
+						</select>
+					</div>
+				</div>
+				<div class="form__field checkbox">
+					<div class="checkbox__description">
+						<message data-message="settings_open_links_in_new_tabs"></message>
+					</div>
+					<div class="checkbox__switch">
+						<input type="checkbox" id="openLinksInNewTabs" tabindex="1">
+						<label for="openLinksInNewTabs"></label>
+					</div>
+				</div>
+				<div class="form__field checkbox">
+					<div class="checkbox__description" data-message="settings_show_folders_path"></div>
+					<div class="checkbox__switch">
+						<input type="checkbox" id="showFoldersPath" tabindex="1">
+						<label for="showFoldersPath"></label>
+					</div>
+				</div>
+				<div class="form__field checkbox">
+					<div class="checkbox__description">
+						<message data-message="settings_remember_scroll_position"></message>
+						<span>
+							<description data-message="settings_scroll_position_description"></description> : <i
+								id="currentScrollPos">0px</i>
+						</span>
+					</div>
+					<div class="checkbox__switch">
+						<input type="checkbox" id="rememberScrollPosition" tabindex="1">
+						<label for="rememberScrollPosition"></label>
+					</div>
+				</div>
+				<div class="form__field checkbox">
+					<div class="checkbox__description">
+						<message data-message="settings_edit_enabled"></message>
+						<span data-message="settings_edit_enabled_description"></span>
+					</div>
+					<div class="checkbox__switch">
+						<input type="checkbox" id="editEnabled" tabindex="1">
+						<label for="editEnabled"></label>
+					</div>
+				</div>
+				<div class="form__field checkbox">
+					<div class="checkbox__description" data-message="settings_sort_enabled"></div>
+					<div class="checkbox__switch">
+						<input type="checkbox" id="sortEnabled" tabindex="1">
+						<label for="sortEnabled"></label>
+					</div>
+				</div>
+				<div class="form__field checkbox">
+					<div class="checkbox__description">
+						<message data-message="settings_show_scrollbutton"></message>
+					</div>
+					<div class="checkbox__switch">
+						<input type="checkbox" id="showScrollButton" tabindex="1">
+						<label for="showScrollButton"></label>
+					</div>
+				</div>
+				<div class="form__field checkbox">
+					<div class="checkbox__description" data-message="settings_show_empty_folders"></div>
+					<div class="checkbox__switch">
+						<input type="checkbox" id="showEmptyFolders" tabindex="1">
+						<label for="showEmptyFolders"></label>
+					</div>
+				</div>
+				<div class="form__field">
+					<a href="chrome://bookmarks/" class="link-out" data-url="chrome://bookmarks/"
+						data-message="link_open_bookmark_manager"></a>
+				</div>
+				<div class="form__field">
+					<button id="settingsClose" class="button" data-message="button_close" tabindex="1"></button>
+					<button id="settingsReset" class="button" data-message="button_reset_settings" tabindex="1"></button>
+				</div>
+			</form>
+		</aside>
+		<aside class="help">
+			<h2 data-message="title_controls"></h2>
+			<ul class="help__controls">
+				<li class="help__item kbd">
+					<span data-message="help_controls_lmb"></span>
+					<div class="kbd__combination">
+						<kbd>LMB</kbd>
+					</div>
+				</li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_lmb_ctrl"></span>
+					<div class="kbd__combination">
+						<kbd>Ctrl</kbd> +<kbd>LMB</kbd>
+					</div>
+				</li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_rmb"></span>
+					<div class="kbd__combination">
+						<kbd>RMB</kbd>
+					</div>
+				</li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_tab_space"></span>
+					<div class="kbd__combination">
+						<kbd>Tab</kbd> &rarr;<kbd>Space</kbd>
+					</div>
+				</li>
+				<li class="help__item kbd">
+					<span data-message="help_controls_refresh"></span>
+					<div class="kbd__combination">
+						<kbd class="help__refresh">&nbsp;</kbd>
+					</div>
+				</li>
+			</ul>
+			<div class="form__field">
+				<button id="github" class="button input-with-icon" data-url="https://github.com/DcFanoiD/bookmark-navigator"
+					tabindex="1" data-message="link_github_text"></button>
+			</div>
+			<div class="plugin-version">
+				<span data-message="version"></span> : <span id="version"></span>
+			</div>
+		</aside>
+		<aside class="link-editor">
+			<h2 data-message="title_change_bookmark"></h2>
+			<form action="/" id="linkEditorForm">
+				<input type="hidden" name="id" value="" id="linkEditorBookmarkId">
+				<div class="form__field form__field--no-separator">
+					<input type="text" name="title" value="" id="linkEditorBookmarkTitle" class="input-with-icon"
+						required>
+				</div>
+				<div class="form__field form__field--no-separator">
+					<input type="url" name="url" value="" id="linkEditorBookmarkUrl" required>
+				</div>
+				<div class="form__field form__field--no-separator">
+					<button id="linkEditorUpdateButton" type="submit" class="submit button"
+						data-message="button_save"></button>
+					<button id="linkEditorCloseButton"  class="button" type="button" data-message="button_cancel"></button>
+					<button id="linkEditorRemoveButton"  class="button" type="button" data-message="button_delete"></button>
+				</div>
+				<div class="form__field">
+					<a href="#" class="link-out-private" id="linkEditorOpenPrivate"
+						data-message="open_bookmark_in_private"></a>
+				</div>
+			</form>
+		</aside>
+		<aside class="folder-editor">
+			<h2 data-message="change_folder"></h2>
+			<form action="/" id="folderEditorForm">
+				<input type="hidden" name="id" value="" id="folderEditorFolderId">
+				<div class="form__field form__field--no-separator">
+					<input type="text" name="title" value="" id="folderEditorFolderTitle"
+						class="input-with-icon icon-folder" required>
+				</div>
+				<div class="form__field form__field--no-separator">
+					<button id="folderEditorUpdateButton" type="submit" class="submit button"
+						data-message="button_rename"></button>
+					<button id="folderEditorCloseButton"  class="button" type="button" data-message="button_cancel"></button>
+				</div>
+				<div class="form__field">
+					<a href="#" class="link-out-tabs" id="folderEditorOpenAll"
+						data-message="open_links_in_new_tabs"></a>
+				</div>
+				<div class="form__field">
+					<a href="chrome://bookmarks/" class="link-out-bookmark-manager" data-url="chrome://bookmarks/"
+						id="folderEditorManagerLink" data-message="open_folder_in_manager"></a>
+				</div>
+			</form>
+		</aside>
+		<header class="header">
+			<div class="header__search">
+				<input type="search" id="search" class="input-with-icon">
+			</div>
+			<div class="header__controls control">
+				<button class="control__item control__item--settings" data-control="settings" tabindex="1"></button>
+				<button class="control__item control__item--refresh" data-control="refresh" tabindex="2"></button>
+				<button class="control__item control__item--help" data-control="help" tabindex="3"></button>
+			</div>
+		</header>
+		<div class="bookmarks" id="bookmarks"></div>
+		<div class="search-status">
+			<div class="search-status__counter">
+				<span data-message="search_found"></span>: 
+				<span id="searchCount"></span>
+			</div>
+			<div class="search-status__cancel">
+				<button id="searchCancelButton" class="button" type="button" data-message="button_exit_search_mode"></button>
+			</div>
+		</div>
+		<div class="scroller" id="scrollerButton"></div>
+	</div>
+</body>
+<script src="assets/js/sortable.js"></script>
+<script src="assets/js/popup.js"></script>
+</html>

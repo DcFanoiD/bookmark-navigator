@@ -1,0 +1,122 @@
+{
+   "bookmarks_empty": {
+      "message": "У вас пока нет закладок"
+   },
+   "button_cancel": {
+      "message": "Отмена"
+   },
+   "button_close": {
+      "message": "Закрыть"
+   },
+   "button_delete": {
+      "message": "Удалить"
+   },
+   "button_exit_search_mode": {
+      "message": "Выйти из режима поиска"
+   },
+   "button_rename": {
+      "message": "Переименовать"
+   },
+   "button_reset_settings": {
+      "message": "Сбросить настройки"
+   },
+   "button_save": {
+      "message": "Сохранить"
+   },
+   "change_folder": {
+      "message": "Изменить папку"
+   },
+   "chrome_extension_description": {
+      "message": "Простой и быстрый доступ к вашим закладкам в виде выпадающего списка с возможностью редактирования."
+   },
+   "chrome_extension_name": {
+      "message": "Bookmark Navigator"
+   },
+   "help_controls_lmb": {
+      "message": "Открыть закладку в текущей или новой вкладке, в зависимости от текущих настроек"
+   },
+   "help_controls_lmb_ctrl": {
+      "message": "Открыть закладку в новой вкладке в фоновом режиме"
+   },
+   "help_controls_refresh": {
+      "message": "Обновить закладки и настройки"
+   },
+   "help_controls_rmb": {
+      "message": "Редактировать закладку или директорию если разрешено в настройках"
+   },
+   "help_controls_tab_space": {
+      "message": "Переключение между элементами и взаимодействие"
+   },
+   "lang": {
+      "message": "ru"
+   },
+   "link_github_text": {
+      "message": "Открыть на GitHub"
+   },
+   "link_open_bookmark_manager": {
+      "message": "Открыть диспетчер закладок"
+   },
+   "open_bookmark_in_private": {
+      "message": "Открыть закладку в режиме инкогнито"
+   },
+   "open_folder_in_manager": {
+      "message": "Открыть папку в диспетчере закладок"
+   },
+   "open_links_in_new_tabs": {
+      "message": "Открыть все закладки в новых вкладках"
+   },
+   "search_found": {
+      "message": "Найдено"
+   },
+   "settings_edit_enabled": {
+      "message": "Разрешить редактирование"
+   },
+   "settings_edit_enabled_description": {
+      "message": "Правый клик на закладке или директории"
+   },
+   "settings_open_links_in_new_tabs": {
+      "message": "Открывать закладки в новых вкладках"
+   },
+   "settings_remember_scroll_position": {
+      "message": "Запоминать позицию скролла"
+   },
+   "settings_scroll_position_description": {
+      "message": "Последняя сохраненная позиция"
+   },
+   "settings_show_empty_folders": {
+      "message": "Показывать пустые папки"
+   },
+   "settings_show_folders_path": {
+      "message": "Показывать вложенность директорий"
+   },
+   "settings_show_scrollbutton": {
+      "message": "Показывать кнопку скролла вверх/вниз"
+   },
+   "settings_sort_enabled": {
+      "message": "Разрешить сортировку перетаскиванием"
+   },
+   "settings_theme": {
+      "message": "Тема"
+   },
+   "settings_theme_dark": {
+      "message": "Тёмная"
+   },
+   "settings_theme_light": {
+      "message": "Светлая"
+   },
+   "settings_theme_system": {
+      "message": "Определять автоматически"
+   },
+   "title_change_bookmark": {
+      "message": "Изменить закладку"
+   },
+   "title_controls": {
+      "message": "Управление"
+   },
+   "title_settings": {
+      "message": "Настройки"
+   },
+   "version": {
+      "message": "Версия расширения"
+   }
+}
