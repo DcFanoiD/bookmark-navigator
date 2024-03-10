@@ -242,8 +242,9 @@ const app = {
                 app.buildHtml(element);
                 app.dom.content += `</li>`;
             } else if(element.url){
+                let favicon = `chrome-extension://${chrome.runtime.id}/_favicon/?pageUrl=${encodeURIComponent(element.url)}&size=32`;
                 app.dom.content += `
-                    <li style="background-image:url(chrome://favicon/${element.url})" data-url="${element.url}" data-id="${element.id}">
+                    <li style="background-image:url(${favicon})" data-url="${element.url}" data-id="${element.id}">
                         <span title="${element.title.length > 45 ? element.title : ''}">${element.title}</span>
                     </li>`;
                 app.counter++;
