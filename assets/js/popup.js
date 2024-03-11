@@ -627,7 +627,10 @@ const app = {
             } else if(param.newtab) {
                 chrome.tabs.create({url: param.url, active: true});
             } else {
-                chrome.tabs.getSelected(null, function(tab) {
+                chrome.tabs.query({
+                    active: true,
+                    lastFocusedWindow: true
+                }, ([tab]) => {
                     chrome.tabs.update(tab.id, {url: param.url});
                     window.close();
                 });

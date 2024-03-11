@@ -32,3 +32,6 @@ Extension ships regularly with new features and bug fixes. You can get the lates
 + Fixed defaul font family to system default
 + Removed donate button
 + Minor UI fixes
+
+1.3.3
++ Hotfix (links won't open in current tab)
